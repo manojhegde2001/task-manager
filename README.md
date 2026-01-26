@@ -1,27 +1,27 @@
+# Task Manager Application
+
+This is a full-stack Task Manager application developed as part of a technical assessment.  
+The application consists of a **React frontend** and a **Node.js + Express backend** using **MongoDB with Prisma ORM**.
 
 ---
 
-## Features
+## Tech Stack
 
-- Create, read, update, and delete tasks (CRUD)
-- REST API built with Express
-- MongoDB integration using Prisma ORM
-- Frontend-backend separation
-- Clean and modular codebase
+### Frontend
+- React
+- JavaScript
+- HTML5
+- CSS
+- Axios
+
+### Backend
+- Node.js
+- Express.js
+- MongoDB
+- Prisma ORM
+- RESTful APIs
 
 ---
 
-## Setup Instructions
+## Project Structure
 
-### Prerequisites
-- Node.js (v16 or higher)
-- npm or yarn
-- MongoDB (local or MongoDB Atlas)
-
----
-
-## Backend Setup
-
-```bash
-cd backend
-npm install
