@@ -15,13 +15,16 @@ const filterOptions = [
 
 export default function App() {
   const [tasks, setTasks] = useState([]);
-  const [filter, setFilter] = useState('all');
+  // store full option object for Select
+  const [filterOption, setFilterOption] = useState(filterOptions[0]);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+
+  const filter = filterOption?.value || 'all';
 
   useEffect(() => {
     fetchTasks();
@@ -32,9 +35,10 @@ export default function App() {
     try {
       const filterParam = filter !== 'all' ? filter : undefined;
       const response = await taskService.getTasks(filterParam);
-      setTasks(response.data);
+      setTasks(response.data || []);
     } catch (error) {
       console.error('Error fetching tasks:', error);
+      setTasks([]);
     } finally {
       setLoading(false);
     }
@@ -77,7 +81,9 @@ export default function App() {
     if (!selectedTask) return;
     setActionLoading(true);
     try {
-      await taskService.updateTask(selectedTask.id, { completed: !selectedTask.completed });
+      await taskService.updateTask(selectedTask.id, {
+        completed: !selectedTask.completed,
+      });
       await fetchTasks();
       setStatusModalOpen(false);
       setSelectedTask(null);
@@ -118,19 +124,38 @@ export default function App() {
     setSelectedTask(null);
   };
 
+  // Extra UI-side filtering
+  const filteredTasks = tasks.filter((task) => {
+    if (filter === 'pending') return !task.completed;
+    if (filter === 'completed') return task.completed;
+    return true;
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mb-8">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white shadow-lg">
-              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+              <svg
+                className="w-7 h-7"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                />
               </svg>
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Task Manager</h1>
-              <p className="text-gray-600 mt-1">Organize and track your daily tasks</p>
+              <p className="text-gray-600 mt-1">
+                Organize and track your daily tasks
+              </p>
             </div>
           </div>
         </div>
@@ -138,14 +163,15 @@ export default function App() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <Select
             options={filterOptions}
-            value={filter}
-            onChange={(val) => setFilter(val)}
-            className="w-full sm:w-56"
+            value={filterOption}
+            onChange={setFilterOption}
+            className="w-full bg-white sm:w-56"
             size="lg"
+            searchContainerClassName="bg-white"
           />
           <Button
             onClick={() => setTaskModalOpen(true)}
-            className="flex items-center gap-2 w-full sm:w-auto shadow-md hover:shadow-lg transition-shadow"
+            className="flex bg-white items-center gap-2 w-full sm:w-auto shadow-md hover:shadow-lg transition-shadow"
             size="lg"
           >
             <PlusIcon className="w-5 h-5" />
@@ -154,7 +180,7 @@ export default function App() {
         </div>
 
         <TaskList
-          tasks={tasks}
+          tasks={filteredTasks}
           loading={loading}
           onToggle={openStatusModal}
           onEdit={openEditModal}

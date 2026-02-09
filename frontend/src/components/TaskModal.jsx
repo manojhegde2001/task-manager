@@ -57,6 +57,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, task, loading }) 
                   label="Task Title"
                   placeholder="Enter task title"
                   error={errors.title?.message}
+                  errorClassName='!text-red-500'
                   className="w-full"
                   size="lg"
                 />
